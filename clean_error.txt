@@ -1,0 +1,384 @@
+﻿.\venv\Scripts\python : 
+WARNING: All log messages 
+before 
+absl::InitializeLog() is 
+called are written to STDERR
+At line:1 char:1
++ .\venv\Scripts\python 
+verify_weights.py > 
+verify_error.log 2>&1; type 
+...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (WARNI  
+  NG: All lo...itten to S   
+ TDERR:String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+I0000 
+00:00:1773985445.619698   
+21812 port.cc:153] oneDNN 
+custom operations are on. 
+You may see slightly 
+different numerical results 
+due to floating-point 
+round-off errors from 
+different computation 
+orders. To turn them off, 
+set the environment 
+variable 
+`TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages 
+before 
+absl::InitializeLog() is 
+called are written to STDERR
+I0000 
+00:00:1773985448.280425   
+21812 port.cc:153] oneDNN 
+custom operations are on. 
+You may see slightly 
+different numerical results 
+due to floating-point 
+round-off errors from 
+different computation 
+orders. To turn them off, 
+set the environment 
+variable 
+`TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 
+00:00:1773985448.838332   
+21812 
+cpu_feature_guard.cc:227] 
+This TensorFlow binary is 
+optimized to use available 
+CPU instructions in 
+performance-critical 
+operations.
+To enable the following 
+instructions: SSE3 SSE4.1 
+SSE4.2 AVX AVX2 FMA, in 
+other operations, rebuild 
+TensorFlow with the 
+appropriate compiler flags.
+WARNING:tensorflow:TensorFlo
+w GPU support is not 
+available on native Windows 
+for TensorFlow >= 2.11. 
+Even if CUDA/cuDNN are 
+installed, GPU will not be 
+used. Please use WSL2 or 
+the TensorFlow-DirectML 
+plugin.
+Building architecture...
+Loading weights...
+Traceback (most recent call 
+last):
+  File "D:\backend_teera\ver
+ify_weights.py", line 13, 
+in <module>
+    model.load_weights("cinn
+amon_disease_model.keras/mod
+el.weights.h5")
+  File "D:\backend_teera\ven
+v\Lib\site-packages\keras\sr
+c\utils\traceback_utils.py",
+ line 122, in error_handler
+    raise e.with_traceback(f
+iltered_tb) from None
+  File "D:\backend_teera\ven
+v\Lib\site-packages\keras\sr
+c\saving\saving_lib.py", 
+line 645, in 
+_raise_loading_failure
+    raise ValueError(msg)
+ValueError: A total of 104 
+objects could not be 
+loaded. Example error 
+message for object <Conv2D 
+name=Conv1, built=True>:
+
+Layer 'Conv1' expected 1 
+variables, but received 0 
+variables during loading. 
+Expected: ['kernel']
+
+List of objects that could 
+not be loaded:
+[<Conv2D name=Conv1, 
+built=True>, 
+<BatchNormalization 
+name=bn_Conv1, built=True>, 
+<DepthwiseConv2D name=expand
+ed_conv_depthwise, 
+built=True>, 
+<BatchNormalization name=exp
+anded_conv_depthwise_BN, 
+built=True>, <Conv2D 
+name=expanded_conv_project, 
+built=True>, 
+<BatchNormalization name=exp
+anded_conv_project_BN, 
+built=True>, <Conv2D 
+name=block_1_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_1_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_1_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_1_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_1_project, 
+built=True>, 
+<BatchNormalization 
+name=block_1_project_BN, 
+built=True>, <Conv2D 
+name=block_2_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_2_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_2_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_2_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_2_project, 
+built=True>, 
+<BatchNormalization 
+name=block_2_project_BN, 
+built=True>, <Conv2D 
+name=block_3_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_3_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_3_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_3_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_3_project, 
+built=True>, 
+<BatchNormalization 
+name=block_3_project_BN, 
+built=True>, <Conv2D 
+name=block_4_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_4_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_4_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_4_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_4_project, 
+built=True>, 
+<BatchNormalization 
+name=block_4_project_BN, 
+built=True>, <Conv2D 
+name=block_5_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_5_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_5_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_5_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_5_project, 
+built=True>, 
+<BatchNormalization 
+name=block_5_project_BN, 
+built=True>, <Conv2D 
+name=block_6_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_6_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_6_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_6_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_6_project, 
+built=True>, 
+<BatchNormalization 
+name=block_6_project_BN, 
+built=True>, <Conv2D 
+name=block_7_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_7_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_7_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_7_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_7_project, 
+built=True>, 
+<BatchNormalization 
+name=block_7_project_BN, 
+built=True>, <Conv2D 
+name=block_8_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_8_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_8_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_8_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_8_project, 
+built=True>, 
+<BatchNormalization 
+name=block_8_project_BN, 
+built=True>, <Conv2D 
+name=block_9_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_9_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_9_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_9_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_9_project, 
+built=True>, 
+<BatchNormalization 
+name=block_9_project_BN, 
+built=True>, <Conv2D 
+name=block_10_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_10_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_10_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_10_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_10_project, 
+built=True>, 
+<BatchNormalization 
+name=block_10_project_BN, 
+built=True>, <Conv2D 
+name=block_11_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_11_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_11_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_11_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_11_project, 
+built=True>, 
+<BatchNormalization 
+name=block_11_project_BN, 
+built=True>, <Conv2D 
+name=block_12_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_12_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_12_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_12_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_12_project, 
+built=True>, 
+<BatchNormalization 
+name=block_12_project_BN, 
+built=True>, <Conv2D 
+name=block_13_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_13_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_13_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_13_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_13_project, 
+built=True>, 
+<BatchNormalization 
+name=block_13_project_BN, 
+built=True>, <Conv2D 
+name=block_14_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_14_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_14_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_14_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_14_project, 
+built=True>, 
+<BatchNormalization 
+name=block_14_project_BN, 
+built=True>, <Conv2D 
+name=block_15_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_15_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_15_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_15_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_15_project, 
+built=True>, 
+<BatchNormalization 
+name=block_15_project_BN, 
+built=True>, <Conv2D 
+name=block_16_expand, 
+built=True>, 
+<BatchNormalization 
+name=block_16_expand_BN, 
+built=True>, 
+<DepthwiseConv2D 
+name=block_16_depthwise, 
+built=True>, 
+<BatchNormalization 
+name=block_16_depthwise_BN, 
+built=True>, <Conv2D 
+name=block_16_project, 
+built=True>, 
+<BatchNormalization 
+name=block_16_project_BN, 
+built=True>, <Conv2D 
+name=Conv_1, built=True>, 
+<BatchNormalization 
+name=Conv_1_bn, built=True>]

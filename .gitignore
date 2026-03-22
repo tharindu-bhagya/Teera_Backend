@@ -1,0 +1,29 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pypirc
+
+# Firebase & Secrets
+firebase_config.json
+.env
+
+# OS
+desktop.ini
+.DS_Store
+
+# Uploads
+uploads/
