@@ -28,15 +28,24 @@ If your backend code is not yet in Git, follow these steps to connect your local
 
 ## 📋 Step 1: Prepare Your Repository
 
+Ensure your backend directory (`backend_teera/`) is part of your GitHub repository.
+
+### Required Files:
+- `app.py` (Modified for Render)
+- `requirements.txt` (Optimized with `tensorflow-cpu` for 512MB RAM)
+- `cinnamon_disease_model.keras/` (ML model weights)
+
+---
+
 ## 🔒 Step 2: Secure Firebase Configuration
 
 Since `firebase_config.json` contains sensitive credentials, you should **not** commit it to version control. Instead, we use an Environment Variable.
 
 ### 1. Convert your JSON to Base64
-Run this command in your local terminal (Windows PowerShell) to get the Base64 string:
+Run this command in your local terminal (Windows PowerShell) to get the Base64 string and copy it directly to your clipboard:
 
 ```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("d:\TEERA\backend_teera\firebase_config.json"))
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("d:\TEERA\backend_teera\firebase_config.json")) | clip
 ```
 
 ### 2. Copy the Output
