@@ -62,27 +62,19 @@ def uploaded_file(filename):
 # Twilio removed in favor of Firebase Email Verification
 
 # --- ML MODEL INITIALIZATION ---
-WEIGHTS_PATH = "cinnamon_disease_model.keras/model.weights.h5"
-if os.path.exists(WEIGHTS_PATH):
-    print("Building ML model architecture & loading weights...")
+MODEL_PATH = "cinnamon_disease_model.keras"
+disease_model = None
+
+if os.path.exists(MODEL_PATH):
+    print(f"Loading ML model from {MODEL_PATH}...")
     try:
-        base_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), include_top=False, weights=None)
-        base_model._name = 'mobilenetv2_1.00_224'
-        inputs = tf.keras.Input(shape=(224, 224, 3), name='input_layer_1')
-        x = base_model(inputs)
-        x = tf.keras.layers.GlobalAveragePooling2D(name='global_average_pooling2d')(x)
-        x = tf.keras.layers.Dense(128, activation='relu', name='dense')(x)
-        x = tf.keras.layers.Dropout(0.2, name='dropout')(x)
-        predictions = tf.keras.layers.Dense(2, activation='softmax', name='dense_1')(x)
-        disease_model = tf.keras.Model(inputs=inputs, outputs=predictions)
-        disease_model.load_weights(WEIGHTS_PATH)
+        # Load the whole model directly instead of rebuilding it layer-by-layer
+        disease_model = tf.keras.models.load_model(MODEL_PATH)
         print("ML model loaded successfully.")
     except Exception as e:
-        print(f"FAILED to build/load model: {e}")
-        disease_model = None
+        print(f"FAILED to load model: {e}")
 else:
-    print(f"WARNING: Model weights file {WEIGHTS_PATH} not found!")
-    disease_model = None
+    print(f"WARNING: Model directory {MODEL_PATH} not found!")
 
 # Firebase Web API Key (Used for Sign-In with Password)
 # You can find this in Firebase Console -> Project Settings -> General -> Web API Key
@@ -382,6 +374,60 @@ def signin():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+def send_disease_broadcast(loc_name, uploader_uid):
+    if not loc_name:
+        return 0
+        
+    loc_name_lower = loc_name.strip().lower()
+    
+    users_ref = db.collection('users')
+    all_users = users_ref.stream()
+    
+    batch = db.batch()
+    notifications_created = 0
+    
+    for user_doc in all_users:
+        if user_doc.id == uploader_uid:
+            continue # Don't alert the person who just uploaded it
+            
+        user_data = user_doc.to_dict()
+        user_loc = user_data.get('location_name')
+        
+        if user_loc and user_loc.strip().lower() == loc_name_lower:
+            # Create a notification in Firestore
+            notif_ref = db.collection('notifications').document()
+            batch.set(notif_ref, {
+                "user_uid": user_doc.id,
+                "type": "disease_alert",
+                "title": "Disease Alert in Your Area",
+                "message": f"Rough Bark Disease was detected in {user_loc}. Please check your plants.",
+                "location_name": user_loc,
+                "created_at": firestore.SERVER_TIMESTAMP,
+                "read": False
+            })
+            
+            # Trigger FCM Push Notification
+            fcm_token = user_data.get('fcm_token')
+            if fcm_token:
+                try:
+                    message = messaging.Message(
+                        notification=messaging.Notification(
+                            title="Disease Alert in Your Area",
+                            body=f"Rough Bark Disease was detected in {user_loc}. Please check your plants."
+                        ),
+                        token=fcm_token,
+                    )
+                    messaging.send(message)
+                except Exception as e:
+                    print(f"Failed to send FCM to {user_doc.id}: {e}")
+                    
+            notifications_created += 1
+    
+    if notifications_created > 0:
+        batch.commit()
+    
+    return notifications_created
+
 @app.route('/api/analyze', methods=['POST'])
 def analyze_leaf():
     if not disease_model:
@@ -411,7 +457,11 @@ def analyze_leaf():
         img_batch = np.expand_dims(img_array, axis=0)
         
         # 4. Predict
-        predictions = disease_model.predict(img_batch, verbose=0)
+        try:
+            predictions = disease_model.predict(img_batch, verbose=0)
+        except Exception as e:
+            print(f"Inference error: {e}")
+            return jsonify({"error": f"Model inference failed: {str(e)}"}), 500
         
         # The output is [1, 2] probability array
         confidence_scores = predictions[0]
@@ -439,59 +489,31 @@ def analyze_leaf():
             loc_name = request.form.get('location_name')
             uploader_uid = request.form.get('uid')
             
-            # If we have a location name, trigger alerts to others in the same area
+            # Use the new helper function for broadcasting
             if loc_name:
-                loc_name_lower = loc_name.strip().lower()
-                
-                users_ref = db.collection('users')
-                all_users = users_ref.stream()
-                
-                batch = db.batch()
-                notifications_created = 0
-                
-                for user_doc in all_users:
-                    if user_doc.id == uploader_uid:
-                        continue # Don't alert the person who just uploaded it
-                        
-                    user_data = user_doc.to_dict()
-                    user_loc = user_data.get('location_name')
-                    
-                    if user_loc and user_loc.strip().lower() == loc_name_lower:
-                        # Create a notification in Firestore
-                        notif_ref = db.collection('notifications').document()
-                        batch.set(notif_ref, {
-                            "user_uid": user_doc.id,
-                            "type": "disease_alert",
-                            "title": "Disease Alert in Your Area",
-                            "message": f"Rough Bark Disease was detected in {user_loc}. Please check your plants.",
-                            "location_name": user_loc,
-                            "created_at": firestore.SERVER_TIMESTAMP,
-                            "read": False
-                        })
-                        
-                        # Trigger FCM Push Notification
-                        fcm_token = user_data.get('fcm_token')
-                        if fcm_token:
-                            try:
-                                message = messaging.Message(
-                                    notification=messaging.Notification(
-                                        title="Disease Alert in Your Area",
-                                        body=f"Rough Bark Disease was detected in {user_loc}. Please check your plants."
-                                    ),
-                                    token=fcm_token,
-                                )
-                                messaging.send(message)
-                            except Exception as e:
-                                print(f"Failed to send FCM to {user_doc.id}: {e}")
-                                
-                        notifications_created += 1
-                
-                if notifications_created > 0:
-                    batch.commit()
-
+                send_disease_broadcast(loc_name, uploader_uid)
             
         return jsonify(result), 200
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/broadcast', methods=['POST'])
+def manual_broadcast():
+    data = request.json
+    city = data.get('city')
+    disease = data.get('disease', 'Rough Bark Disease')
+    uid = data.get('uid')
+    
+    if not city:
+        return jsonify({"error": "City name is required"}), 400
+        
+    try:
+        count = send_disease_broadcast(city, uid)
+        return jsonify({
+            "message": f"Broadcast successful. {count} users alerted in {city}.",
+            "count": count
+        }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

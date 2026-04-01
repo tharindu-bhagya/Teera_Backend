@@ -1,0 +1,275 @@
+{
+  "info": {
+    "name": "Teera Backend API",
+    "description": "Postman Collection for manually testing all endpoints of the Teera backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5000",
+      "type": "string"
+    },
+    {
+      "key": "uid",
+      "value": "YOUR_FIREBASE_UID",
+      "type": "string"
+    },
+    {
+      "key": "idToken",
+      "value": "YOUR_ID_TOKEN",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "User Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser1@example.com\",\n  \"phone_number\": \"+94701234567\",\n  \"full_name\": \"Test User\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/signup",
+              "host": ["{{base_url}}"],
+              "path": ["api", "signup"]
+            }
+          }
+        },
+        {
+          "name": "User Signin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser1@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/signin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "signin"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. User Profile",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile/{{uid}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "{{uid}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"location_name\": \"Colombo\",\n  \"mood\": \"Light\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/{{uid}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "{{uid}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Cinnamon Leaf Analysis",
+      "item": [
+        {
+          "name": "Analyze Image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "uid",
+                  "value": "{{uid}}",
+                  "type": "text"
+                },
+                {
+                  "key": "location_name",
+                  "value": "Colombo",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/analyze",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analyze"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Social Feed",
+      "item": [
+        {
+          "name": "Create Post",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "uid",
+                  "value": "{{uid}}",
+                  "type": "text"
+                },
+                {
+                  "key": "postText",
+                  "value": "This is a test post!",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
+            }
+          }
+        },
+        {
+          "name": "Get Posts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Notifications",
+      "item": [
+        {
+          "name": "Get User Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/{{uid}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "{{uid}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Reminders",
+      "item": [
+        {
+          "name": "Save a Reminder",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{uid}}\",\n  \"reminder_name\": \"Water the plants\",\n  \"description\": \"Water indoor cinnamon plants\",\n  \"date\": \"2023-11-01\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reminders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reminders"]
+            }
+          }
+        },
+        {
+          "name": "Get Reminders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/get-reminders/{{uid}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "get-reminders", "{{uid}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. TeeraBot Chat",
+      "item": [
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"How to water a cinnamon plant?\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "chat"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
