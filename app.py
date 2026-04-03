@@ -25,7 +25,11 @@ import json
 
 # Handle Firebase Config via Environment Variable (for Render/Production)
 # OR via local file (for Development)
+# Handle Firebase Config via Environment Variable (for Render/Production)
+# OR via local file (for Development)
 firebase_config_env = os.environ.get("FIREBASE_CONFIG_BASE64")
+cred = None
+
 if firebase_config_env:
     try:
         print("Initializing Firebase from environment variable...")
@@ -33,20 +37,29 @@ if firebase_config_env:
         cred = credentials.Certificate(config_dict)
     except Exception as e:
         print(f"FAILED to initialize Firebase from environment variable: {e}")
-        # Fallback to file if it exists
-        cred = credentials.Certificate("firebase_config.json")
-else:
-    # Make sure "firebase_config.json" is in your backend folder!
-    if os.path.exists("firebase_config.json"):
-        cred = credentials.Certificate("firebase_config.json")
+
+if not cred:
+    # Use absolute path to ensure the file is found regardless of where the server starts
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "firebase_config.json")
+    if os.path.exists(config_path):
+        try:
+            print(f"Initializing Firebase from local file: {config_path}")
+            cred = credentials.Certificate(config_path)
+        except Exception as e:
+            print(f"ERROR: Failed to load Firebase certificate from {config_path}: {e}")
     else:
-        print("ERROR: firebase_config.json not found and no environment variable provided.")
-        cred = None
+        print(f"ERROR: firebase_config.json not found at {config_path}")
 
 if cred:
-    firebase_admin.initialize_app(cred)
-    db = firestore.client()
+    try:
+        firebase_admin.initialize_app(cred)
+        db = firestore.client()
+        print("Firebase SDK initialized successfully.")
+    except Exception as e:
+        print(f"CRITICAL ERROR: Failed to initialize Firebase app: {e}")
+        db = None
 else:
+    print("WARNING: Firebase will NOT be available (cred is None).")
     db = None
 
 app = Flask(__name__)
@@ -71,40 +84,49 @@ def home():
 
 # Twilio removed in favor of Firebase Email Verification
 
-# --- ML MODEL INITIALIZATION ---
-MODEL_PATH = "cinnamon_disease_model.keras"
+# --- ML MODEL LOADING (LAZY) ---
+MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cinnamon_disease_model.keras")
 disease_model = None
+model_initialized = False
 
-if os.path.exists(MODEL_PATH):
-    print(f"Loading ML model from {MODEL_PATH}...")
-    try:
-        # 1. Build Model Architecture manually (matches training)
-        base_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), include_top=False, weights=None)
-        
-        inputs = tf.keras.Input(shape=(224, 224, 3), name='input_layer_1')
-        x = base_model(inputs)
-        x = tf.keras.layers.GlobalAveragePooling2D(name='global_average_pooling2d')(x)
-        x = tf.keras.layers.Dense(128, activation='relu', name='dense')(x)
-        x = tf.keras.layers.Dropout(0.2, name='dropout')(x)
-        predictions = tf.keras.layers.Dense(2, activation='softmax', name='dense_1')(x)
+def get_disease_model():
+    """Lazy model loader to prevent Heroku boot timeout."""
+    global disease_model, model_initialized
+    if model_initialized:
+        return disease_model
 
-        disease_model = tf.keras.Model(inputs=inputs, outputs=predictions)
+    if os.path.exists(MODEL_PATH):
+        print(f"Loading ML model from {MODEL_PATH}...")
+        try:
+            # Load MobileNetV2 base
+            base_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), include_top=False, weights=None)
+            
+            inputs = tf.keras.Input(shape=(224, 224, 3), name='input_layer_1')
+            x = base_model(inputs)
+            x = tf.keras.layers.GlobalAveragePooling2D(name='global_average_pooling2d')(x)
+            x = tf.keras.layers.Dense(128, activation='relu', name='dense')(x)
+            x = tf.keras.layers.Dropout(0.2, name='dropout')(x)
+            predictions = tf.keras.layers.Dense(2, activation='softmax', name='dense_1')(x)
 
-        # 2. Load Weights from the verified .h5 file
-        WEIGHTS_PATH = os.path.join(MODEL_PATH, "model.weights.h5")
-        if os.path.exists(WEIGHTS_PATH):
-            disease_model.load_weights(WEIGHTS_PATH)
-            print("ML model weights loaded successfully.")
-        else:
-            # Fallback if unzipped directory was not found, check zip
-            print(f"WARNING: Weights file {WEIGHTS_PATH} not found.")
+            disease_model = tf.keras.Model(inputs=inputs, outputs=predictions)
+
+            # Load Weights
+            WEIGHTS_PATH = os.path.join(MODEL_PATH, "model.weights.h5")
+            if os.path.exists(WEIGHTS_PATH):
+                disease_model.load_weights(WEIGHTS_PATH)
+                print("ML model weights loaded successfully.")
+            else:
+                print(f"WARNING: Weights file {WEIGHTS_PATH} not found.")
+                disease_model = None
+
+        except Exception as e:
+            print(f"FAILED to build or load model: {e}")
             disease_model = None
-
-    except Exception as e:
-        print(f"FAILED to build or load model manually: {e}")
-        disease_model = None
-else:
-    print(f"WARNING: Model directory {MODEL_PATH} not found!")
+    else:
+        print(f"WARNING: Model directory {MODEL_PATH} not found!")
+    
+    model_initialized = True
+    return disease_model
 
 # Firebase Web API Key (Used for Sign-In with Password)
 # You can find this in Firebase Console -> Project Settings -> General -> Web API Key
@@ -460,7 +482,8 @@ def send_disease_broadcast(loc_name, uploader_uid):
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze_leaf():
-    if not disease_model:
+    current_model = get_disease_model()
+    if not current_model:
         return jsonify({"error": "ML model is not loaded on the server."}), 500
 
     if 'file' not in request.files:
