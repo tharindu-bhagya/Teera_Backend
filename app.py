@@ -60,6 +60,15 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
+@app.route('/')
+def home():
+    """Health check endpoint for Render."""
+    return jsonify({
+        "status": "Healthy",
+        "message": "Teera Backend is online and ready!",
+        "version": "1.0.0"
+    }), 200
+
 # Twilio removed in favor of Firebase Email Verification
 
 # --- ML MODEL INITIALIZATION ---
