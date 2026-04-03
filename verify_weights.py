@@ -15,7 +15,7 @@ model = tf.keras.Model(inputs=inputs, outputs=predictions)
 
 print("Loading weights...")
 try:
-    model.load_weights("d:/backend_teera/cinnamon_disease_model.keras/model.weights.h5")
+    model.load_weights("d:/TEERA/backend_teera/cinnamon_disease_model.keras/model.weights.h5")
     print("SUCCESS!")
 except Exception as e:
     print(f"FAILED: {e}")

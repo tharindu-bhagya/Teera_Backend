@@ -12,6 +12,7 @@ import numpy as np  # type: ignore
 from PIL import Image  # type: ignore
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # Suppress TF warnings
 import tensorflow as tf  # type: ignore
+import keras  # type: ignore
 import firebase_admin  # type: ignore
 from firebase_admin import credentials, firestore, auth, messaging  # type: ignore
 from datetime import datetime, timedelta, timezone
@@ -68,11 +69,31 @@ disease_model = None
 if os.path.exists(MODEL_PATH):
     print(f"Loading ML model from {MODEL_PATH}...")
     try:
-        # Load the whole model directly instead of rebuilding it layer-by-layer
-        disease_model = tf.keras.models.load_model(MODEL_PATH)
-        print("ML model loaded successfully.")
+        # 1. Build Model Architecture manually (matches training)
+        base_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), include_top=False, weights=None)
+        
+        inputs = tf.keras.Input(shape=(224, 224, 3), name='input_layer_1')
+        x = base_model(inputs)
+        x = tf.keras.layers.GlobalAveragePooling2D(name='global_average_pooling2d')(x)
+        x = tf.keras.layers.Dense(128, activation='relu', name='dense')(x)
+        x = tf.keras.layers.Dropout(0.2, name='dropout')(x)
+        predictions = tf.keras.layers.Dense(2, activation='softmax', name='dense_1')(x)
+
+        disease_model = tf.keras.Model(inputs=inputs, outputs=predictions)
+
+        # 2. Load Weights from the verified .h5 file
+        WEIGHTS_PATH = os.path.join(MODEL_PATH, "model.weights.h5")
+        if os.path.exists(WEIGHTS_PATH):
+            disease_model.load_weights(WEIGHTS_PATH)
+            print("ML model weights loaded successfully.")
+        else:
+            # Fallback if unzipped directory was not found, check zip
+            print(f"WARNING: Weights file {WEIGHTS_PATH} not found.")
+            disease_model = None
+
     except Exception as e:
-        print(f"FAILED to load model: {e}")
+        print(f"FAILED to build or load model manually: {e}")
+        disease_model = None
 else:
     print(f"WARNING: Model directory {MODEL_PATH} not found!")
 
