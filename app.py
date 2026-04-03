@@ -651,6 +651,34 @@ def chat():
     
     if not user_msg:
         return jsonify({"error": "No message provided"}), 400
+
+    msg_lower = user_msg.lower()
+    
+    # --- Expert Teera Domain Knowledge (Priority) ---
+    # We check for domain expertise BEFORE calling the general AI
+    expert_reply = None
+    
+    if any(kw in msg_lower for kw in ['hi', 'hello', 'hey', 'ayubowan']):
+        expert_reply = "Ayubowan! I'm Teera. How can I help you with your plants today?"
+    elif any(kw in msg_lower for kw in ['soil', 'dirt', 'potting']):
+        expert_reply = "Cinnamon thrives in well-draining, sandy-loam soil with a pH between 4.5 and 7.0. Avoid heavy clay or 'wet feet' to prevent root rot!"
+    elif any(kw in msg_lower for kw in ['fertilizer', 'feed', 'food', 'npk']):
+        expert_reply = "For healthy growth, feed your cinnamon tree every 4-6 weeks during spring and summer with a balanced NPK 10-10-10 or organic fish fertilizer."
+    elif any(kw in msg_lower for kw in ['water', 'watering', 'wet']):
+        expert_reply = "Cinnamon likes stay moist but not soggy. Let the top 1-2 inches of soil dry before watering. If the leaves turn yellow, you might be overwatering!"
+    elif any(kw in msg_lower for kw in ['prune', 'pruning', 'cut']):
+        expert_reply = "Regular pruning maintains health! It's best to prune dead branches in late winter. This also encourages the bushier growth needed for bark harvesting."
+    elif any(kw in msg_lower for kw in ['harvest', 'inner bark', 'quills']):
+        expert_reply = "Cinnamon is harvested by cutting stems and peeling the inner bark. The bark then naturally curls into 'quills' (sticks) as it dries in a cool, shady place."
+    elif any(kw in msg_lower for kw in ['disease', 'sick', 'leaf', 'spot', 'rough bark']):
+        expert_reply = "For spots or cracks, use my 'Scan' feature! Teera is trained to detect Rough Bark disease and other common issues affecting cinnamon trees."
+    elif any(kw in msg_lower for kw in ['sunlight', 'sun', 'light']):
+        expert_reply = "Most cinnamon trees need bright, indirect sunlight to thrive. If the leaves turn brown or crispy, they might be getting too much direct afternoon sun."
+    elif any(kw in msg_lower for kw in ['cinnamon', 'tree']):
+        expert_reply = "Cinnamon trees are tropical beauties! They love humidity, temperatures between 20°C–30°C, and well-drained soil. What specific care do you need help with?"
+
+    if expert_reply:
+        return jsonify({"reply": expert_reply}), 200
         
     try:
         import urllib.parse
@@ -668,23 +696,8 @@ def chat():
             raise Exception("API status not 200")
             
     except Exception as e:
-        # --- Local Rule-Based Fallback ---
-        msg_lower = user_msg.lower()
-        
-        # Simple keyword-based responses for plant care
-        if any(kw in msg_lower for kw in ['hi', 'hello', 'hey', 'ayubowan']):
-            reply = "Ayubowan! I'm Teera. How can I help you with your plants today?"
-        elif any(kw in msg_lower for kw in ['water', 'watering']):
-            reply = "Most plants prefer the soil to be moist but not soggy. Check the top inch of soil; if it's dry, it's time to water!"
-        elif any(kw in msg_lower for kw in ['disease', 'sick', 'leaf', 'spot']):
-            reply = "If you notice spots or yellowing, use my 'Scan' feature! It can identify common diseases like Rough Bark Disease."
-        elif any(kw in msg_lower for kw in ['cinnamon', 'tree']):
-            reply = "Cinnamon trees thrive in wet, tropical climates with plenty of sunlight and well-drained soil."
-        elif any(kw in msg_lower for kw in ['sunlight', 'sun', 'light']):
-            reply = "Most indoor plants need bright, indirect sunlight. If leaves are turning brown, they might be getting too much direct sun."
-        else:
-            reply = "I'm having a little trouble connecting to my AI brain, but I'm here to help! Try asking about 'watering', 'sunlight', or use the 'Scan' feature to check for diseases."
-            
+        # Final Fallback
+        reply = "I'm having a little trouble connecting to my AI brain, but I'm here to help! Try asking about 'watering', 'sunlight', or use the 'Scan' feature to check for diseases."
         return jsonify({"reply": reply}), 200
 
 @app.route('/api/logout', methods=['POST'])
