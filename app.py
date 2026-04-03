@@ -53,9 +53,7 @@ app = Flask(__name__)
 CORS(app) 
 
 # Ensure uploads directory exists
-# Looking up one level from 'api/' to the project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, 'uploads')
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__name__)), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/uploads/<filename>')
@@ -64,7 +62,7 @@ def uploaded_file(filename):
 
 @app.route('/')
 def home():
-    """Health check endpoint for Render/Vercel."""
+    """Health check endpoint for Render/Heroku."""
     return jsonify({
         "status": "Healthy",
         "message": "Teera Backend is online and ready!",
@@ -74,8 +72,7 @@ def home():
 # Twilio removed in favor of Firebase Email Verification
 
 # --- ML MODEL INITIALIZATION ---
-# Looking up one level for the model folder
-MODEL_PATH = os.path.join(PROJECT_ROOT, "cinnamon_disease_model.keras")
+MODEL_PATH = "cinnamon_disease_model.keras"
 disease_model = None
 
 if os.path.exists(MODEL_PATH):
