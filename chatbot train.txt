@@ -1,0 +1,27 @@
+elif any(kw in msg_lower for kw in ['cinnamon', 'tree']):
+    expert_reply = """Cinnamon trees are tropical beauties! Their value lies in their complex chemical profile, which varies significantly between the bark, the leaves, and the roots. 
+
+### 🧪 Volume 3: Phytochemistry and Molecular Biology
+The secondary metabolites of the Cinnamomum genus are among the most studied in ethnobotany. The tree produces these compounds primarily as a defense mechanism against fungal pathogens and herbivorous insects.
+
+#### 🍂 1. Cinnamaldehyde (The Core Aromatic)
+The primary constituent of cinnamon bark oil is (E)-cinnamaldehyde. In 'True' Ceylon cinnamon, this makes up 65–85% of the volatile oil. It is an unsaturated aldehyde that gives cinnamon its distinct pungent smell. Beyond flavor, it is a potent antifungal agent, effectively inhibiting the growth of various molds and yeasts.
+
+#### 🍃 2. Eugenol (The Leaf Powerhouse)
+While the bark is rich in aldehydes, the leaves of the cinnamon tree are dominated by Eugenol (often exceeding 70%). This is the same compound found in cloves. Eugenol acts as a natural anesthetic and antiseptic, which is why cinnamon leaf oil is often used in traditional dentistry and topical balms.
+
+#### 🪵 3. Camphor (The Root Secret)
+If you were to distill the roots of a cinnamon tree, you wouldn't get the smell of spice at all—you would get Camphor. The root-bark oil is distinctively cooling and medicinal, showing how the tree partitions its chemical defenses throughout its structure.
+
+#### ⚠️ 4. The Coumarin Factor
+This is a critical distinction for health. Cassia cinnamon (C. cassia) contains significant levels of Coumarin, a natural phytochemical that can be hepatotoxic (damaging to the liver) if consumed in large quantities over time. 
+* **Ceylon Cinnamon:** Contains trace amounts (approx. 0.004%).
+* **Cassia Cinnamon:** Contains up to 1% or more (approx. 250 times more than Ceylon).
+
+### 🩺 Medicinal Applications and Metabolic Impact
+Modern clinical research focuses heavily on the 'Insulin-Mimetic' properties of cinnamon.
+* **Glycemic Control:** Studies suggest that certain water-soluble polyphenols (Type-A polymers) in cinnamon can improve insulin sensitivity by enhancing the glucose uptake signaling pathway.
+* **Antioxidant Capacity:** Cinnamon ranks as one of the highest antioxidant-dense spices in the world, surpassing even 'superfoods' like garlic and oregano in its ORAC (Oxygen Radical Absorbance Capacity) score.
+* **Neuroprotection:** Emerging research is looking into the ability of sodium benzoate (a metabolite of cinnamon) to cross the blood-brain barrier and potentially protect against protein aggregation in neurodegenerative conditions.
+
+What specific care or chemical analysis do you need help with regarding these medicinal properties?"""

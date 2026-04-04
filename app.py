@@ -414,10 +414,16 @@ def signin():
             if not user_record.email_verified:
                 return jsonify({"error": "Please verify your email before signing in."}), 403
                 
+            # Fetch full name from Firestore
+            user_doc = db.collection('users').document(uid).get()
+            user_data = user_doc.to_dict() if user_doc.exists else {}
+            full_name = user_data.get('full_name', 'User')
+
             id_token = resp_data.get('idToken')
             return jsonify({
                 "message": "Signed in successfully",
                 "uid": uid,
+                "full_name": full_name,
                 "idToken": id_token
             }), 200
         else:
