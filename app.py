@@ -378,7 +378,7 @@ def handle_profile(uid):
             return jsonify({"error": "No fields to update"}), 400
             
         try:
-            user_ref.update(update_fields)
+            user_ref.set(update_fields, merge=True)
             return jsonify({"message": "Profile updated successfully"}), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500
