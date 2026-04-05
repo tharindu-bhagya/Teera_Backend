@@ -99,6 +99,7 @@ def get_disease_model():
         try:
             # Load MobileNetV2 base
             base_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), include_top=False, weights=None)
+            base_model._name = 'mobilenetv2_1.00_224' # Match training name for layer alignment
             
             inputs = tf.keras.Input(shape=(224, 224, 3), name='input_layer_1')
             x = base_model(inputs)
@@ -573,10 +574,13 @@ def analyze_leaf():
         
         # 4. Predict
         try:
-            predictions = disease_model.predict(img_batch, verbose=0)
+            predictions = current_model.predict(img_batch, verbose=0)
         except Exception as e:
-            print(f"Inference error: {e}")
-            return jsonify({"error": f"Model inference failed: {str(e)}"}), 500
+            print(f"CRITICAL Inference error: {e}")
+            return jsonify({
+                "error": "Model failed to process this image.",
+                "details": str(e)
+            }), 500
         
         # The output is [1, 2] probability array
         confidence_scores = predictions[0]
