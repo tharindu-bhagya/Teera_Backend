@@ -75,14 +75,13 @@ def uploaded_file(filename):
 
 @app.route('/')
 def home():
-    """Health check endpoint for Render/Heroku."""
+    """Health check endpoint for Heroku."""
     return jsonify({
         "status": "Healthy",
         "message": "Teera Backend is online and ready!",
         "version": "1.0.0"
     }), 200
 
-# Twilio removed in favor of Firebase Email Verification
 
 # --- ML MODEL LOADING (LAZY) ---
 MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cinnamon_disease_model.keras")
@@ -129,10 +128,9 @@ def get_disease_model():
     return disease_model
 
 # Firebase Web API Key (Used for Sign-In with Password)
-# You can find this in Firebase Console -> Project Settings -> General -> Web API Key
 FIREBASE_WEB_API_KEY = 'AIzaSyD8xyi4veuUY9HWBU0ty1oCnvz7X9buYdc'
 
-# --- BACKGROUND REMINDER TASK ---
+# BACKGROUND REMINDER 
 def check_and_send_reminders():
     # This thread wakes up every hour to see if any reminders are scheduled for today
     while True:
