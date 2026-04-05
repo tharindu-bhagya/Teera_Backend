@@ -272,6 +272,12 @@ def manage_posts():
             response_data = post_data.copy()
             response_data['created_at'] = datetime.now(timezone.utc).isoformat()
             
+            # Send Community Broadcast (Notification to everyone)
+            try:
+                send_community_broadcast(user_name, post_text, uid)
+            except Exception as notif_err:
+                print(f"FAILED to send community broadcast: {notif_err}")
+
             return jsonify({"message": "Post created successfully", "post": response_data}), 201
 
         except Exception as e:
@@ -478,6 +484,58 @@ def send_disease_broadcast(loc_name, uploader_uid):
                     print(f"Failed to send FCM to {user_doc.id}: {e}")
                     
             notifications_created += 1
+    
+    if notifications_created > 0:
+        batch.commit()
+    
+    return notifications_created
+
+def send_community_broadcast(uploader_name, post_text, uploader_uid):
+    """Notify all users when someone shares a community post."""
+    users_ref = db.collection('users')
+    all_users = users_ref.stream()
+    
+    batch = db.batch()
+    notifications_created = 0
+    
+    # Shorten text for notification body
+    msg_body = post_text[:100] + ("..." if len(post_text) > 100 else "")
+    if not msg_body:
+        msg_body = "Shared a new update with the community."
+
+    for user_doc in all_users:
+        if user_doc.id == uploader_uid:
+            continue # Don't alert the uploader
+            
+        user_data = user_doc.to_dict()
+        
+        # Create a notification in Firestore (in-app alert)
+        notif_ref = db.collection('notifications').document()
+        batch.set(notif_ref, {
+            "user_uid": user_doc.id,
+            "type": "community_post",
+            "title": f"{uploader_name} shared a post",
+            "message": msg_body,
+            "created_at": firestore.SERVER_TIMESTAMP,
+            "read": False
+        })
+        
+        # Trigger FCM Push Notification
+        fcm_token = user_data.get('fcm_token')
+        if fcm_token:
+            try:
+                message = messaging.Message(
+                    notification=messaging.Notification(
+                        title=f"{uploader_name} shared a post",
+                        body=msg_body
+                    ),
+                    token=fcm_token,
+                )
+                messaging.send(message)
+            except Exception as e:
+                print(f"Failed to send Community FCM to {user_doc.id}: {e}")
+                
+        notifications_created += 1
     
     if notifications_created > 0:
         batch.commit()
